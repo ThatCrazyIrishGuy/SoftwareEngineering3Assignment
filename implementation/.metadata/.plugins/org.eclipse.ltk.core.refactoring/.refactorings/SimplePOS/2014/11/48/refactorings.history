@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete 6 elements from project &apos;SimplePOS&apos;&#x0D;&#x0A;- Original project: &apos;SimplePOS&apos;&#x0D;&#x0A;- Original elements:&#x0D;&#x0A;     SimplePOS/src/business&#x0D;&#x0A;     SimplePOS/src/command&#x0D;&#x0A;     SimplePOS/src/dao&#x0D;&#x0A;     SimplePOS/src/exceptions&#x0D;&#x0A;     SimplePOS/src/service&#x0D;&#x0A;     SimplePOS/src/servlet" description="Delete elements" element1="/src&lt;servlet" element2="/src&lt;service" element3="/src&lt;exceptions" element4="/src&lt;dao" element5="/src&lt;command" element6="/src&lt;business" elements="6" flags="589830" id="org.eclipse.jdt.ui.delete" resources="0" stamp="1417087797647" subPackages="false" version="1.0"/>
+</session>
