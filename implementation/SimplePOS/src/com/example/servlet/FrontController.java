@@ -10,9 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.example.command.Command;
-import com.example.command.CommandFactory;
-import com.example.exceptions.CommandCreationException;
+import com.example.business.Transaction;
 
 /**
  * Servlet implementation class FrontController
@@ -20,7 +18,6 @@ import com.example.exceptions.CommandCreationException;
 @WebServlet(urlPatterns={"/FrontController"})
 public class FrontController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final String LOGIN_ACTION = "LoginUser";
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -53,44 +50,54 @@ public class FrontController extends HttpServlet {
 
 		String forwardToJsp = null;		
 		String action = request.getParameter("action");
-		
-		
-		/*
-		 * NOTE: AS A SPCIAL CASE, THIS SECTION OF THE CODE DEALS WITH CHECKING LOGIN DETAILS...
-		 */
-		
-		//Check if this is not a login request...
-		if ( !action.equalsIgnoreCase(LOGIN_ACTION) ){
-
-			//If not a login request then need to check that user is  
-			//logged in before processing ANY requests.
 			
-			//Check to see if the session id coming from the client matches the id stored at login...
+		if (action.equalsIgnoreCase("CREATE_TRANSACTION") ){
+			
 			HttpSession session = request.getSession();
-
-			//If user not logged in...
-			if ( session.getId() != session.getAttribute("loggedSessionId") ){
-				forwardToJsp = "/loginFailure.jsp";
-				forwardToPage(request, response, forwardToJsp);
-				return;
-			}			
-		}			
+			Transaction transaction = new Transaction();			
+			
+			String[] barcodes = request.getParameterValues("barcode[]");
+			
+			boolean exists = false;
+			
+			for (String barcode : barcodes)
+			{
+				exists = transaction.addItem(barcode);
+				
+				if (!exists)
+				{
+					try
+					{
+						response.sendRedirect("index.jsp#error");
+					} catch (IOException e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					return;
+				}
+				
+			}
+			
+			session.setAttribute("transaction", transaction);
+			session.setAttribute("total", transaction.getTotal());
+			
+			forwardToJsp = "/transaction.jsp";
+			
+			forwardToPage(request, response, forwardToJsp);
+		}	
+		else if (action.equalsIgnoreCase("COMMIT_TRANSACTION"))
+		{
+			HttpSession session = request.getSession();
+			
+			Transaction transaction = (Transaction) session.getAttribute("transaction");
+			transaction.commit();
+			
+			forwardToJsp = "/index.jsp";
+			
+			forwardToPage(request, response, forwardToJsp);
+		}
 		
-		
-		//Now we can process whatever the request is...
-		//We just create a Command object to handle the request...
-		CommandFactory factory = CommandFactory.getInstance();
-		Command command = null;
-		
-		try {
-			command = factory.createCommand(action);
-			forwardToJsp = command.execute(request, response);
-		} catch (CommandCreationException e) {			
-			e.printStackTrace();
-			forwardToJsp = "/errorPage.jsp";
-		}		
-		
-		forwardToPage(request, response, forwardToJsp);
 	}
 	
 	
